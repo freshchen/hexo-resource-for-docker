@@ -3,7 +3,6 @@ git pull || exit 1
 git add .
 git commit -m $1
 git push origin master
-:wq
 
 # 主机上的systemd文件如下
 #[Unit]
