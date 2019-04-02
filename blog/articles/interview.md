@@ -81,10 +81,27 @@ refs：
 
 问题1：java有几种引用，各有什么区别
 
-问题2：常用的docker，linux操作
+问题2：常用的docker，linux操作,docker主要依赖什么虚拟化技术，docker能隔离什么不能隔离什么
 
 问题3：spring bean的scope默认是什么，还有几种其他选项。
 
 问题4：二叉树，找出节点值相加等于指定值的所有路径。
 
 问题5：mysql索引使用的数据结构是什么，为什么不用哈希表。
+
+问题6：如何对对象枷锁，如何对类加锁
+
+问题7：tomcat和nagix的主要区别，以及实现的主要思想
+
+
+
+#### 参考答案
+
+refs：
+
+[强引用、软引用、弱引用、虚引用的概念](<https://www.cnblogs.com/alias-blog/p/5793108.html>)
+
+[Spring中Bean的五个作用域](https://www.cnblogs.com/goody9807/p/7472127.html)
+
+[docker namespace cgroup network](http://www.cnblogs.com/sammyliu/p/5878973.html)
+
