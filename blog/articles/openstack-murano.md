@@ -1,7 +1,7 @@
 ---
 title: Openstack murano打包部署应用
 date: 2019-04-04
-categories: Linux
+categories: Openstack
 top: 25
 ---
 
