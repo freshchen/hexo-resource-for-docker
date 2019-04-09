@@ -32,6 +32,8 @@ systemctl status redisd
 
 ## CLI命令
 
+### key
+
 | Key相关命令 | 示例           | 描述                                        |
 | --------- | -------------- | ------------------------------------------- |
 | SET       | SET name lingc | 给key赋予string类型值，key重复则覆盖        |
@@ -49,7 +51,7 @@ systemctl status redisd
 |PERSIST|PERSIST name|设置key的生命周期为永久|
 |TTL|TTL name|查看key的生命周期|
 
-不打算用专业大写太麻烦啦，下面命令还是用小写了！
+### String
 
 
 | String相关命令 | 示例           | 描述                                        |
@@ -67,7 +69,7 @@ systemctl status redisd
 |setbit  key offset value|setbit char 0 1|设置offset对应二进制位上的值,返回: 该位上的旧值|
 |bitop operation destkey key1 [key2 ...]|bitop or char char lower|对key1,key2..keyN作operation,并将结果保存到 destkey 上。注意: 对于NOT操作, key不能多个|
 
-
+### Link
 
 | Link相关命令 | 示例           | 描述                                        |
 | --------- | -------------- | ------------------------------------------- |
@@ -84,7 +86,7 @@ systemctl status redisd
 |rpoplpush source dest|rpoplpushlink1 link2|把source的尾部拿出,放在dest的头部,并返回 该单元值|
 |brpop ,blpop  key timeout|brpop link1 100|等待弹出key的尾/头元素, Timeout为等待超时时间，如果timeout为0,则一直等待|
 
-
+### Set
 
 | Set相关命令 | 示例           | 描述                                        |
 | --------- | -------------- | ------------------------------------------- |
@@ -101,7 +103,7 @@ systemctl status redisd
 |suion key1 key2.. Keyn|suionset1 set2 set3|求出key1 key2 keyn的并集,并返回|
 |sdiff key1 key2 key3|sdiff set1 set2 set3|求出key1与key2 key3的差集|
 
-
+### Order Set
 
 
 | order set 相关命令 | 示例           | 描述                                        |
@@ -118,7 +120,7 @@ systemctl status redisd
 |zcard key|zcard stu|返回元素个数|
 |zcount key min max|zcount stu 1 3|返回[min,max] 区间内元素的数量|
 
-
+### Hash
 
 
 | hash相关命令 | 示例           | 描述                                        |
