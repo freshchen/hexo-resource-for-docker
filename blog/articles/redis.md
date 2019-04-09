@@ -30,7 +30,7 @@ systemctl start redisd
 systemctl status redisd
 ```
 
-## CLI命令
+## 基础数据结构常用命令
 
 [Redis数据类型官网](<https://redis.io/topics/data-types-intro>)
 
@@ -145,7 +145,7 @@ systemctl status redisd
 
 [Redis的事务功能详解](<https://www.cnblogs.com/kyrin/p/5967620.html>)
 
-### 1. MULTI
+### MULTI
 
 用于标记事务块的开始。Redis会将后续的命令逐个放入队列中，然后才能使用EXEC命令原子化地执行这个命令序列。
 
@@ -155,7 +155,7 @@ MULTI
 
 这个命令的返回值是一个简单的字符串，总是OK。
 
-### 2. EXEC
+### EXEC
 
 在一个事务中执行所有先前放入队列的命令，然后恢复正常的连接状态。
 
@@ -167,7 +167,7 @@ EXEC
 
 这个命令的返回值是一个数组，其中的每个元素分别是原子化事务中的每个命令的返回值。 当使用WATCH命令时，如果事务执行中止，那么EXEC命令就会返回一个Null值。
 
-### 3. DISCARD
+### DISCARD
 
 清除所有先前在一个事务中放入队列的命令，然后恢复正常的连接状态。
 
@@ -181,7 +181,7 @@ DISCARD
 
 这个命令的返回值是一个简单的字符串，总是OK。
 
-### 4. WATCH
+### WATCH
 
 当某个事务需要按条件执行时，就要使用这个命令将给定的键设置为受监控的。
 
@@ -195,7 +195,7 @@ WATCH key [key ...]
 
 对于每个键来说，时间复杂度总是O(1)。
 
-### 5. UNWATCH
+### UNWATCH
 
 清除所有先前为一个事务监控的键。
 
@@ -220,7 +220,7 @@ UNWATCH
 | 失败 | rollback 回滚     | discard 取消 |
 | 成功 | commit            | exec         |
 
-示例
+### CAS示例
 
 ```bash
 127.0.0.1:6379> SET name ling
@@ -263,6 +263,67 @@ Discard只是结束本次事务,前2条语句造成的影响仍然还在
 2: 语法本身没错,但适用对象有问题. 比如 zadd 操作list对象
 
 Exec之后,会执行正确的语句,并跳过有不适当的语句.
+
+
+
+## 消息发布与订阅
+
+订阅端: Subscribe 频道名称
+
+发布端: publish 频道名称 发布内容
+
+发布端示例
+
+```bash
+127.0.0.1:6379> PUBLISH news1 hello
+(integer) 2
+127.0.0.1:6379> PUBLISH news2 halo
+(integer) 2
+127.0.0.1:6379> PUBLISH news3 nihao
+(integer) 1
+
+```
+
+订阅端1示例
+
+```bash
+127.0.0.1:6379> SUBSCRIBE news1 news2
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "news1"
+3) (integer) 1
+1) "subscribe"
+2) "news2"
+3) (integer) 2
+1) "message"
+2) "news1"
+3) "hello"
+1) "message"
+2) "news2"
+3) "halo"
+```
+
+订阅端2示例
+
+```bash
+127.0.0.1:6379> PSUBSCRIBE news*
+Reading messages... (press Ctrl-C to quit)
+1) "psubscribe"
+2) "news*"
+3) (integer) 1
+1) "pmessage"
+2) "news*"
+3) "news1"
+4) "hello"
+1) "pmessage"
+2) "news*"
+3) "news2"
+4) "halo"
+1) "pmessage"
+2) "news*"
+3) "news3"
+4) "nihao"
+```
 
 
 
