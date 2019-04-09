@@ -32,6 +32,8 @@ systemctl status redisd
 
 ## CLI命令
 
+[Redis数据类型官网](<https://redis.io/topics/data-types-intro>)
+
 ### key
 
 | Key相关命令 | 示例           | 描述                                        |
@@ -136,6 +138,131 @@ systemctl status redisd
 |hincrby key field value|HINCRBY map1 age 1|是把key中的field域的值整型值增加|
 |hkeys key|hkeys  map1|返回key中所有的field|
 |hvals key|hvals map1|返回key中所有的value|
+
+
+
+## Redis事务
+
+[Redis的事务功能详解](<https://www.cnblogs.com/kyrin/p/5967620.html>)
+
+### 1. MULTI
+
+用于标记事务块的开始。Redis会将后续的命令逐个放入队列中，然后才能使用EXEC命令原子化地执行这个命令序列。
+
+这个命令的运行格式如下所示：
+
+MULTI
+
+这个命令的返回值是一个简单的字符串，总是OK。
+
+### 2. EXEC
+
+在一个事务中执行所有先前放入队列的命令，然后恢复正常的连接状态。
+
+当使用WATCH命令时，只有当受监控的键没有被修改时，EXEC命令才会执行事务中的命令，这种方式利用了检查再设置（CAS）的机制。
+
+这个命令的运行格式如下所示：
+
+EXEC
+
+这个命令的返回值是一个数组，其中的每个元素分别是原子化事务中的每个命令的返回值。 当使用WATCH命令时，如果事务执行中止，那么EXEC命令就会返回一个Null值。
+
+### 3. DISCARD
+
+清除所有先前在一个事务中放入队列的命令，然后恢复正常的连接状态。
+
+如果使用了WATCH命令，那么DISCARD命令就会将当前连接监控的所有键取消监控。
+
+这个命令的运行格式如下所示：
+
+```
+DISCARD
+```
+
+这个命令的返回值是一个简单的字符串，总是OK。
+
+### 4. WATCH
+
+当某个事务需要按条件执行时，就要使用这个命令将给定的键设置为受监控的。
+
+这个命令的运行格式如下所示：
+
+```
+WATCH key [key ...]
+```
+
+这个命令的返回值是一个简单的字符串，总是OK。
+
+对于每个键来说，时间复杂度总是O(1)。
+
+### 5. UNWATCH
+
+清除所有先前为一个事务监控的键。
+
+如果你调用了EXEC或DISCARD命令，那么就不需要手动调用UNWATCH命令。
+
+这个命令的运行格式如下所示：
+
+```
+UNWATCH
+```
+
+这个命令的返回值是一个简单的字符串，总是OK。
+
+时间复杂度总是O(1)。
+
+**Redis与 mysql事务的对比**
+
+|      | Mysql             | Redis        |
+| ---- | ----------------- | ------------ |
+| 开启 | start transaction | muitl        |
+| 语句 | 普通sql           | 普通命令     |
+| 失败 | rollback 回滚     | discard 取消 |
+| 成功 | commit            | exec         |
+
+示例
+
+```bash
+127.0.0.1:6379> SET name ling
+OK
+127.0.0.1:6379> SET age 20
+OK
+127.0.0.1:6379> WATCH name
+OK
+127.0.0.1:6379> SET name chen
+OK
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379> SET age 30
+QUEUED
+127.0.0.1:6379> EXEC
+(nil)
+127.0.0.1:6379> get name
+"chen"
+127.0.0.1:6379> get age
+"20"
+
+```
+
+注: rollback与discard 的区别
+
+如果已经成功执行了2条语句, 第3条语句出错.
+
+Rollback后,前2条的语句影响消失.
+
+Discard只是结束本次事务,前2条语句造成的影响仍然还在
+
+注:
+
+在mutil后面的语句中, 语句出错可能有2种情况
+
+1: 语法就有问题, 
+
+这种,exec时,报错, 所有语句得不到执行
+
+2: 语法本身没错,但适用对象有问题. 比如 zadd 操作list对象
+
+Exec之后,会执行正确的语句,并跳过有不适当的语句.
 
 
 
