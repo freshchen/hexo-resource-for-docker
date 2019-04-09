@@ -80,7 +80,7 @@ systemctl status redisd
 |ltrim key start stop|ltrim link1 1 3|剪切key对应的链接,切[start,stop]一段,并把该段重新赋给key|
 |lindex key index|lindex link1 3|返回index索引上的值,|
 |llen key|llen link1|计算链接表的元素个数|
-|linsert  key after\|before search value|linsert link1 after  c aaa|作用: 在key链表中寻找’search’,并在search值之前\|之后,.插入value，注: 一旦找到一个search后,命令就结束了,因此不会插入多个value|
+|linsert  key [after.before] search value|linsert link1 after  c aaa|作用: 在key链表中寻找’search’,并在search值之前之后,插入value，注: 一旦找到一个search后,命令就结束了,因此不会插入多个value|
 |rpoplpush source dest|rpoplpushlink1 link2|把source的尾部拿出,放在dest的头部,并返回 该单元值|
 |brpop ,blpop  key timeout|brpop link1 100|等待弹出key的尾/头元素, Timeout为等待超时时间，如果timeout为0,则一直等待|
 
