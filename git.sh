@@ -1,7 +1,11 @@
 #!/bin/bash
 git pull || exit 1
 git add .
-git commit -m $1
+if [ $1 ];then
+	git commit -m $*;
+else
+    git commit -m "update"
+fi
 git push origin master
 
 # 主机上的systemd文件如下
