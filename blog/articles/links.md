@@ -2,7 +2,7 @@
 title: 好文链接收藏
 date: 2019-02-12 15:16:07
 categories: others
-top: 、
+top: 
 ---
 
 ## Python
