@@ -2,7 +2,7 @@
 git pull || exit 1
 git add .
 if [ $1 ];then
-	git commit -m $*;
+    git commit -m "$*";
 else
     git commit -m "update"
 fi
