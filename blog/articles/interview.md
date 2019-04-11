@@ -93,6 +93,8 @@ refs：
 
 问题7：tomcat和nagix的主要区别，以及实现的主要思想
 
+问题8：Java servlet 和 servlet容器 和 SpringMVC servlet的区别
+
 
 
 #### 参考答案
@@ -111,5 +113,5 @@ refs：
 
 [Nginx基本概念、模块化思想、工作流程、工作原理](https://www.baidu.com/link?url=WPRot77-1KvO2wqLhjc9qJ62sN0h5dxJIVXDIm6tyvFfjWURqNsVqDjzDEFEMKw-lnem_iUAHWNHhLOeV6wsbE-Z9C9efw16wBRScMK1K8y&wd=&eqid=9004656400116839000000065cadae70)
 
-
+[Tomcat服务器原理详解](https://www.cnblogs.com/crazylqy/p/4706223.html)
 
