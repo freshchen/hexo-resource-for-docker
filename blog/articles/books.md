@@ -39,6 +39,6 @@ top:
 
 ## Java
 
-#### [Maven权威指南(中文).pdf](https://github.com/freshchen/hexo-resource-for-docker/raw/master/blog/resource/books/%E3%80%8AMaven%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97(%E4%B8%AD%E6%96%87).pdf)
+#### [Maven权威指南.pdf](https://github.com/freshchen/hexo-resource-for-docker/raw/master/blog/resource/books/Maven权威指南.pdf)
 
 #### [Effective Java 3rd Edition-2018-英文版.pdf](https://github.com/freshchen/hexo-resource-for-docker/raw/master/blog/resource/books/%E6%90%AC%E4%B9%A6%E5%8C%A0-2077-Effective%20Java%203rd%20Edition-2018-%E8%8B%B1%E6%96%87%E7%89%88.pdf)
