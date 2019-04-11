@@ -105,3 +105,11 @@ refs：
 
 [docker namespace cgroup network](http://www.cnblogs.com/sammyliu/p/5878973.html)
 
+[java中对象锁与类锁的一些理解与实例](https://www.cnblogs.com/houzheng/p/9084026.html)
+
+[nginx和tomcat的区别](https://www.cnblogs.com/flypie/p/5153702.html)
+
+[Nginx基本概念、模块化思想、工作流程、工作原理](https://www.baidu.com/link?url=WPRot77-1KvO2wqLhjc9qJ62sN0h5dxJIVXDIm6tyvFfjWURqNsVqDjzDEFEMKw-lnem_iUAHWNHhLOeV6wsbE-Z9C9efw16wBRScMK1K8y&wd=&eqid=9004656400116839000000065cadae70)
+
+
+
