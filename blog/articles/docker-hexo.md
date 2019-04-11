@@ -43,3 +43,25 @@ hexo g && hexo d
 rm -rf $tmpdir
 ```
 
+5Github仓库设置更新的webhook
+
+6本机监听webhook启动更新，本地监听服务如下
+
+```bash
+# 主机上的systemd文件如下
+#[Unit]
+#After=network.target
+
+#[Service]
+#User=root
+#Type=simple
+#ExecStart=/bin/bash -xc 'nc -l 0.0.0.0 17732 && docker run --rm <github name>/hexo:blog sh /home/hexo/script/update-blog.sh > /var/log/update-hexo.log 2>&1 '
+#Restart=always
+#RestartSec=5
+#StartLimitInterval=1min
+#StartLimitBurst=60
+
+#[Install]
+#WantedBy=multi-user.target
+```
+
