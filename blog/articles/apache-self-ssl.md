@@ -32,6 +32,7 @@ SSLCertificateKeyFile /root/ssl/self/server.key
 
 如果我们想把所有的HTTP请求转为走HTTPS，可以在**/etc/httpd/conf/httpd.conf**  最下方加如下
 
+
 ```bash
 RewriteEngine on
 RewriteCond %{SERVER_PORT} !^443$
