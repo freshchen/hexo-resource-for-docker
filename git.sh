@@ -11,7 +11,6 @@ git push origin master
 # 主机上的systemd文件如下
 #[Unit]
 #After=network.target
-
 #[Service]
 #User=root
 #Type=simple
@@ -20,6 +19,5 @@ git push origin master
 #RestartSec=5
 #StartLimitInterval=1min
 #StartLimitBurst=60
-
 #[Install]
 #WantedBy=multi-user.target
