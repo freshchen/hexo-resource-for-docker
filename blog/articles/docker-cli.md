@@ -71,3 +71,22 @@ version
 | USER        | USER <user>[:<group>]                                        |
 | WORKDIR     | WORKDIR /path/to/workdir                                     |
 | ARG         | ARG <name>[=<default value>]                                 |
+
+
+
+### Docker 安装mysql
+
+```bash
+docker pull mysql/mysql-server
+docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=admin123 mysql/mysql-server
+docker exec -it mysql bash
+修改
+ use mysql;
+ update user set host = '%' where user = 'root';
+ FLUSH PRIVILEGES;
+```
+
+
+
+
+

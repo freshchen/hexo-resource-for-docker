@@ -100,9 +100,79 @@ systemctl status memcached
 
 [官网](https://docs.openstack.org/keystone/queens/install/)
 
-```sh
-# 改完可能会apache起不来没有35357和5000端口，重启服务就好了 
-apachectl restart
+```
+mysql -u root -p
+
+CREATE DATABASE keystone;
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY '密码';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY '密码';
+```
+
+```
+vi /etc/keystone/keystone.conf
+
+[database]
+# 加上connection
+connection = mysql+pymysql://keystone:密码@controller/keystone
+[token]
+provider = fernet
+```
+
+```
+su -s /bin/sh -c "keystone-manage db_sync" keystone
+```
+
+```
+keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+```
+
+```
+keystone-manage bootstrap --bootstrap-password admin1234 \
+  --bootstrap-admin-url http://controller:5000/v3/ \
+  --bootstrap-internal-url http://controller:5000/v3/ \
+  --bootstrap-public-url http://controller:5000/v3/ \
+  --bootstrap-region-id RegionOne
+```
+
+```
+vi /etc/httpd/conf/httpd.conf
+ServerName controller
+
+########################################################################
+# 改完可能会apache起不来没有35357和5000端口，重启服务就好了 apachectl restart #
+########################################################################
+```
+
+```
+ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
+```
+
+```
+systemctl enable httpd.service
+systemctl start httpd.service
+```
+
+```
+vi ~/admin-openrc
+
+export OS_USERNAME=admin
+export OS_PASSWORD=ADMIN_PASS
+export OS_PROJECT_NAME=admin
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_AUTH_URL=http://controller:5000/v3
+export OS_IDENTITY_API_VERSION=3
+```
+
+```
+. ~/admin-openrc
+```
+
+测试一下有正常返回基本就没问题了,有问题可以检查数据库
+
+```
+openstack token issue
 ```
 
 ```sh
@@ -113,6 +183,176 @@ systemctl restart httpd.service
 #### nova
 
 [官网](https://docs.openstack.org/nova/queens/install/)
+
+```bash
+mysql -u root -p
+```
+
+```bash
+CREATE DATABASE nova_api;
+CREATE DATABASE nova;
+CREATE DATABASE nova_cell0;
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'eMbMs1234!';
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'eMbMs1234!';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'eMbMs1234!';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'eMbMs1234!';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'eMbMs1234!';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'eMbMs1234!';
+```
+
+```bash
+openstack user create --domain default --password-prompt nova
+```
+
+```bash
+ openstack role add --project service --user nova admin
+```
+
+```bash
+openstack service create --name nova --description "OpenStack Compute" compute
+```
+
+```bash
+openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1
+```
+
+```
+openstack user create --domain default --password-prompt placement
+```
+
+```
+openstack role add --project service --user placement admin
+```
+
+```
+openstack service create --name placement --description "Placement API" placement
+```
+
+```
+openstack endpoint create --region RegionOne placement public http://controller:8778
+openstack endpoint create --region RegionOne placement internal http://controller:8778
+openstack endpoint create --region RegionOne placement admin http://controller:8778
+```
+
+```
+vi  /etc/nova/nova.conf
+[DEFAULT]
+# ...
+enabled_apis = osapi_compute,metadata
+transport_url = rabbit://openstack:RABBIT_PASS@controller
+my_ip = 10.0.0.11
+use_neutron = True
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+[api_database]
+# ...
+connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova_api
+
+[database]
+# ...
+connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova
+[api]
+# ...
+auth_strategy = keystone
+
+[keystone_authtoken]
+# ...
+auth_url = http://controller:5000/v3
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = nova
+password = NOVA_PASS
+[vnc]
+enabled = true
+# ...
+server_listen = $my_ip
+server_proxyclient_address = $my_ip
+[glance]
+# ...
+api_servers = http://controller:9292
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/nova/tmp
+[placement]
+# ...
+region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://controller:5000/v3
+username = placement
+password = PLACEMENT_PASS
+```
+
+```
+创消息队列用户
+rabbitmqctl add_user openstack openstack1234
+rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+rabbitmqctl list_users
+```
+
+```
+vi /etc/httpd/conf.d/00-nova-placement-api.conf
+<Directory /usr/bin>
+   <IfVersion >= 2.4>
+      Require all granted
+   </IfVersion>
+   <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+   </IfVersion>
+</Directory>
+```
+
+```
+systemctl restart httpd
+```
+
+```
+su -s /bin/sh -c "nova-manage api_db sync" nova
+```
+
+```
+su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
+```
+
+```
+su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+```
+
+```
+su -s /bin/sh -c "nova-manage db sync" nova
+```
+
+```
+# 检查
+nova-manage cell_v2 list_cells
+```
+
+```
+systemctl enable openstack-nova-api.service \
+  openstack-nova-consoleauth.service openstack-nova-scheduler.service \
+  openstack-nova-conductor.service openstack-nova-novncproxy.service
+
+systemctl start openstack-nova-api.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+```
+
+```
+openstack compute service list
+```
+
+```
+openstack catalog list
+```
+
+```
+nova-status upgrade check
+```
 
 ```sh
 # 忽略python警告
@@ -127,6 +367,79 @@ systemctl restart openstack-nova-api.service openstack-nova-consoleauth.service 
 #### glance
 
 [官网](https://docs.openstack.org/glance/queens/install/)
+
+```
+mysql -u root -p
+CREATE DATABASE glance;
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY '密码';
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY '密码';
+```
+
+```
+. admin-openrc
+openstack user create --domain default --password-prompt glance
+openstack role add --project service --user glance admin
+openstack service create --name glance --description "OpenStack Image" image
+openstack endpoint create --region RegionOne image public http://controller:9292
+openstack endpoint create --region RegionOne image admin http://controller:9292
+```
+
+```
+vi /etc/glance/glance-api.conf 
+[database]
+# 加上connection
+connection = mysql+pymysql://glance:密码@controller/glance
+[keystone_authtoken]
+# ...
+auth_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = glance
+password = GLANCE_PASS(创建glance用户时候密码)
+[paste_deploy]
+# ...
+flavor = keystone
+[glance_store]
+# ...
+stores = file,http
+default_store = file
+filesystem_store_datadir = /var/lib/glance/images/
+```
+
+```bash
+vi /etc/glance/glance-registry.conf
+[database]
+# ...
+connection = mysql+pymysql://glance:密码@controller/glance
+[keystone_authtoken]
+# ...
+auth_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = glance
+password = GLANCE_PASS
+
+[paste_deploy]
+# ...
+flavor = keystone
+```
+
+```
+su -s /bin/sh -c "glance-manage db_sync" glance
+```
+
+```
+systemctl enable openstack-glance-api.service openstack-glance-registry.service
+systemctl start openstack-glance-api.service openstack-glance-registry.service
+```
 
 ```sh
 # 问题一
@@ -176,3 +489,45 @@ systemctl restart httpd.service memcached.service
 #### tacker
 
 [官网](https://docs.openstack.org/tacker/queens/install/)
+
+
+
+### Troubleshooting
+
+#### 问题1 
+
+##### 描述：检查keystone是否成功安装，没正常反馈
+
+```bash
+[root@controller ~]# openstack token issue
+An unexpected error prevented the server from fulfilling your request. (HTTP 500) (Request-ID: req-9b2cf24c-b63b-4f66-a069-abba4e3cb766)
+```
+
+```bash
+vi /var/log/keystone/keystone.log 
+
+2019-04-24 16:32:59.961 23037 ERROR keystone OperationalError: (pymysql.err.OperationalError) (1045, u"Access denied for user 'keystone'@'controller' (using password: YES)") (Background on this error at: http://sqlalche.me/e/e3q8)
+```
+
+发现是数据库认证问题，可是明明给keystone用户加权限了啊。
+
+##### 解决方案
+
+经过多次测试，如果在mysql安全初始化时，不移除匿名用户、删除test数据库，就会出现以上授权问题
+
+```bash
+# mysql_secure_installation<<EOF
+n
+Y
+Y
+Y
+Y
+EOF
+```
+
+然后继续执行,查看keystone数据库中有没有表生成
+
+```bash
+su -s /bin/sh -c "keystone-manage db_sync" keystone
+```
+
