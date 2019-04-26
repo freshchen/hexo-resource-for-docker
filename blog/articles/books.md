@@ -7,6 +7,8 @@ top:
 
 # 收集了一些技术书籍，点击即可下载，侵删。
 
+**书籍太大，部署太慢，弃用**
+
 ## Linux
 
 #### [鸟哥的Linux私房菜第四版.pdf](https://github.com/freshchen/hexo-resource-for-docker/raw/master/blog/resource/books/%E9%B8%9F%E5%93%A5%E7%9A%84Linux%E7%A7%81%E6%88%BF%E8%8F%9C%E7%AC%AC%E5%9B%9B%E7%89%88.pdf)
