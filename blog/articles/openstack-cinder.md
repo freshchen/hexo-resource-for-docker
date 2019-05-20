@@ -11,6 +11,8 @@ Cinder是Openstack中的块存储组件，只是一个中间层的概念，存�
 
 ## 安装
 
+使用官网推荐的LVM作为后端
+
 ```bash
 mysql -u root -p
 MariaDB [(none)]> CREATE DATABASE cinder;
@@ -98,3 +100,36 @@ systemctl start openstack-cinder-api.service openstack-cinder-scheduler.service
 systemctl status openstack-cinder-volume.service target.service openstack-cinder-api.service openstack-cinder-scheduler.service
 systemctl restart openstack-cinder-volume.service target.service openstack-cinder-api.service openstack-cinder-scheduler.service
 ```
+
+### 问题
+
+因为机器上只有一块磁盘，所以需要做一个虚拟磁盘。
+
+```bash
+dd if=/dev/zero of=/vol/cinder-volumes bs=1 count=0 seek=10G   
+# Mount the file.   
+loopdev=`losetup -f`   
+losetup $loopdev /vol/cinder-volumes   
+# Initialize as a physical volume.   
+pvcreate $loopdev   
+# Create the volume group.   
+vgcreate cinder-volumes $loopdev   
+# Verify the volume has been created correctly.   
+pvscan 
+```
+
+### 个性化配置
+
+[官方配置文档](https://docs.openstack.org/cinder/rocky/configuration/index.html)
+
+1块存储服务**openstack-cinder-api**是单进程运行的 ， 限制了速度，可以更改cinder配置文件，或者命令修改
+
+```bash
+openstack-config --set /etc/cinder/cinder.conf \
+  DEFAULT osapi_volume_workers CORES
+```
+
+CORES：机器上CPU的核数或者线程数
+
+## 使用
+
