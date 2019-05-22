@@ -2,7 +2,7 @@
 title: Python可视化库（绘制图表）matplotlib
 date: 2019-02-02 15:24:32
 categories: python
-top: 8
+top: 27
 ---
 
 ## 动机
