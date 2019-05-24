@@ -443,7 +443,7 @@ systemctl start openstack-glance-api.service openstack-glance-registry.service
 
 ```sh
 # 问题一
-[root@controller ~]# openstack image create "cirros-rhel7.4" --file /home/echneli/rhel-server-7.4-x86_64-kvm.qcow2 --disk-format qcow2 --container-format bare --public
+[root@controller ~]# openstack image create "cirros-rhel7.4" --file /home/rhel-server-7.4-x86_64-kvm.qcow2 --disk-format qcow2 --container-format bare --public
 503 Service Unavailable: The server is currently unavailable. Please try again at a later time. (HTTP 503)
 
 [root@controller ~]# vi /var/log/glance/api.log
