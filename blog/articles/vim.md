@@ -2,7 +2,7 @@
 title: Vim笔记
 date: 2019-5-20
 categories: Linux
-top: 15
+top:
 ---
 
 ## 按键图
