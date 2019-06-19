@@ -1,15 +1,13 @@
 ---
-title: J.U.C Atomic包源码
+title: J.U.C 源码结构
 date: 2019-06-19
 categories: java
 top: 30
 ---
 
-## J.U.C 学习之atomic包
+## J.U.C 学习之atomic包结构
 
 #### AtomicBoolean，AtomicInteger，AtomicIntegerArray，AtomicLong，AtomicLongArray，AtomicReference，AtomicReferenceArray
-
-类似实现：
 
 1.volatile修饰value，实现的区别是value属性的类型不同，AtomicBoolean中的value值0和1对应true和false，AtomicReference的value使用泛型
 
@@ -23,8 +21,6 @@ private static final long valueOffset;
 ```
 
 #### AtomicIntegerFieldUpdater，AtomicLongFieldUpdater，AtomicReferenceFieldUpdater
-
-类似实现：
 
 1. 调用sun.misc.Unsafe中的native本地方法实现实现CAS原子性操作
 2. 利用反射操作类属性
@@ -85,7 +81,38 @@ private volatile Pair<V> pair;
 }
 ```
 
+## J.U.C 学习之locks包结构
 
+#### AbstractQueuedSynchronizer
+
+同步锁实现的基础。
+
+1.定义了静态不变私有属性类Node，定义了一个类似CLH的链表
+
+```java
+static final class Node {
+    // 共享资源模式
+    static final Node SHARED = new Node();
+    // 独占资源模式
+    static final Node EXCLUSIVE = null;
+    static final int CANCELLED =  1;
+    static final int SIGNAL    = -1;
+    static final int CONDITION = -2;
+    static final int PROPAGATE = -3;
+    // 设置资源为上面四种状态
+    volatile int waitStatus;
+    // 前一个节点
+    volatile Node prev;
+    // 下一个节点
+    volatile Node next;
+    // 节点对应的线程
+    volatile Thread thread;
+    // 条件等待队列
+    Node nextWaiter;
+}
+```
+
+2.调用sun.misc.Unsafe中的native本地方法实现实现CAS原子性操作
 
 
 
