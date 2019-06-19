@@ -7,7 +7,7 @@ top: 30
 
 ## J.U.C 学习之atomic包结构
 
-#### AtomicBoolean，AtomicInteger，AtomicIntegerArray，AtomicLong，AtomicLongArray，AtomicReference，AtomicReferenceArray
+#### AtomicBoolean,AtomicInteger,AtomicIntegerArray,AtomicLong，AtomicLongArray,AtomicReference,AtomicReferenceArray
 
 1.volatile修饰value，实现的区别是value属性的类型不同，AtomicBoolean中的value值0和1对应true和false，AtomicReference的value使用泛型
 
@@ -20,7 +20,7 @@ private static final Unsafe unsafe = Unsafe.getUnsafe();
 private static final long valueOffset;
 ```
 
-#### AtomicIntegerFieldUpdater，AtomicLongFieldUpdater，AtomicReferenceFieldUpdater
+#### AtomicIntegerFieldUpdater,AtomicLongFieldUpdater,AtomicReferenceFieldUpdater
 
 1. 调用sun.misc.Unsafe中的native本地方法实现实现CAS原子性操作
 2. 利用反射操作类属性
@@ -31,7 +31,7 @@ private final long offset;
 AtomicIntegerFieldUpdaterImpl(final Class<T> tclass,final String fieldName,final Class<?> caller)
 ```
 
-#### AtomicMarkableReference，AtomicStampedReference
+#### AtomicMarkableReference,AtomicStampedReference
 
 1.引入成员静态私有类Pair，用于查看引用是否被修改，或者改变次数。
 
@@ -53,7 +53,7 @@ private static class Pair<T> {
 private volatile Pair<V> pair;
 ```
 
-#### DoubleAccumulator，DoubleAdder，LongAccumulator，LongAdder
+#### DoubleAccumulator,DoubleAdder,LongAccumulator,LongAdder
 
 作用：jdk1.8中加入，主要用于高并发情景下的统计工作，不能保证细粒度的同步，不能取代Atomic前缀的类。
 
