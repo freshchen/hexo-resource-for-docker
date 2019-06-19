@@ -1,9 +1,9 @@
-```
+---
 title: J.U.C Atomic包源码
 date: 2019-06-19
 categories: java
 top: 30
-```
+---
 
 ## J.U.C 学习之atomic包
 
