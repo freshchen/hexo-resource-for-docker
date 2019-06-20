@@ -1,9 +1,13 @@
 ---
-title: J.U.C 源码结构
+title: J.U.C 源码初体验
 date: 2019-06-19
 categories: java
 top: 30
 ---
+
+# 前言
+
+功力还不够，只是粗略的看下J.U.C下类的实现方案。
 
 ## J.U.C 学习之atomic包结构
 
@@ -87,7 +91,7 @@ private volatile Pair<V> pair;
 
 同步锁实现的基础。
 
-1.定义了静态不变私有属性类Node，定义了一个类似CLH的链表
+1.定义了静态不变私有属性类Node，定义了一个类似CLH的队列，用于实现等待队列和条件队列
 
 ```java
 static final class Node {
@@ -112,9 +116,80 @@ static final class Node {
 }
 ```
 
-2.调用sun.misc.Unsafe中的native本地方法实现实现CAS原子性操作
+2.调用sun.misc.Unsafe中的native本地方法实现实现CAS原子性操作，CLH队列自旋
 
+```java
+private Node enq(final Node node) {
+    for (;;) {
+        Node t = tail;
+        if (t == null) { // Must initialize
+            if (compareAndSetHead(new Node()))
+                tail = head;
+        } else {
+            node.prev = t;
+            if (compareAndSetTail(t, node)) {
+                t.next = node;
+                return t;
+            }
+        }
+    }
+}
+```
 
+#### ReentrantLock
 
+1.Sync内部抽象类实现可重入同步逻辑
 
+2.NonfairSync继承Sync实现非公平锁
 
+3.FairSync继承Sync实现公平锁
+
+4.其他方法通过调用Sync中的方法供外部调用
+
+#### ReentrantReadWriteLock
+
+1.和ReentrantLock实现方案类似，新增了ReadLock，WriteLock
+
+#### StampedLock
+
+1.jdk1.8以后提供的改进版的读写锁
+
+2.不是可重入锁
+
+#### LockSupport
+
+1.通过Unsafe native 方法实现了挂起，唤醒的功能，AQS中也有使用
+
+2.应该避免使用Object下的挂起操作。LockSupport.park对应Object.wait，LockSupport.unpark对应Object.notify
+
+## J.U.C 学习之高并发数据结构
+
+#### ArrayBlockingQueue
+
+1.内部类Itr实现Iterator迭代器
+
+2.Itrs将多个Itr组合起来
+
+```java
+private class Node extends WeakReference<Itr> {
+    Node next;
+
+    Node(Itr iterator, Node next) {
+        super(iterator);
+        this.next = next;
+    }
+}
+```
+
+3.使用Lock和Condition
+
+```java
+/** Main lock guarding all access */
+final ReentrantLock lock;
+
+/** Condition for waiting takes */
+private final Condition notEmpty;
+
+/** Condition for waiting puts */
+private final Condition notFull;
+```
